@@ -1,0 +1,433 @@
+mysql> create table bank(
+    -> bank_id int primary key auto_increment,
+    -> bankname varchar(15) not null unique,
+    -> branchcode varchar(5) not null unique,
+    -> ifsc varchar(11) unique check(length(ifsc)=11),
+    -> location varchar(50) default 'not provided',
+    -> founded int check (founded >1900)
+    -> );
+
+mysql> desc bank;
++------------+-------------+------+-----+--------------+----------------+
+| Field      | Type        | Null | Key | Default      | Extra          |
++------------+-------------+------+-----+--------------+----------------+
+| bank_id    | int         | NO   | PRI | NULL         | auto_increment |
+| bankname   | varchar(15) | NO   | UNI | NULL         |                |
+| branchcode | varchar(5)  | NO   | UNI | NULL         |                |
+| ifsc       | varchar(11) | YES  | UNI | NULL         |                |
+| location   | varchar(50) | YES  |     | not provided |                |
+| founded    | int         | YES  |     | NULL         |                |
+| cityid     | int         | YES  | MUL | NULL         |                |
++------------+-------------+------+-----+--------------+----------------+
+7 rows in set (0.01 sec)
+
+
+
+mysql> create table City(
+    -> CityID int primary key auto_increment,
+    -> CityName varchar(50) not null,
+    -> State varchar(50) not null
+    -> );
+
+
+
+Step 4: Add a Foreign Key
+Suppose you also have a table City that contains CityID and CityName. Add a foreign key to link Bank to City.
+
+Add Column: CityID (as a Foreign Key).
+
+sql
+ALTER TABLE Bank 
+ADD CityID INT,
+ADD CONSTRAINT fk_city 
+FOREIGN KEY (CityID) REFERENCES City(CityID);
+
+
+
+mysql> insert into City values(101,'Mumbai','MH');
+Query OK, 1 row affected (0.01 sec)
+mysql> insert into City(CityName,State) values('Pune','MH');
+Query OK, 1 row affected (0.00 sec)
+mysql> insert into City(CityName,State) values('Banglore','Karnatak'),
+    -> ('Chennai','TN'),
+    -> ('Ahemdabad','Gujarat');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from City;
++--------+-----------+----------+
+| CityID | CityName  | State    |
++--------+-----------+----------+
+|    101 | Mumbai    | MH       |
+|    102 | Pune      | MH       |
+|    103 | Banglore  | Karnatak |
+|    104 | Chennai   | TN       |
+|    105 | Ahemdabad | Gujarat  |
++--------+-----------+----------+
+5 rows in set (0.00 sec)
+
+
+mysql> Alter table bank
+    -> add cityid int,
+    -> add constraint fk_city
+    -> foreign key (cityid) references City(CityID);
+Query OK, 0 rows affected (0.15 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+mysql> insert into bank(bank_id,bankname,branchcode,ifsc,location,founded,cityid)
+    -> values (1,'SBI Bank','BR001','SBIN0001234','Mumbai',1955,101);
+Query OK, 1 row affected (0.00 sec)
+
+
+insert into bank(bankname,branchcode,ifsc,location,founded,cityid)
+    -> values ('HDFC Bank','BR002','HDFC0005678','Pune',1994,102),
+    -> ('ICICI Bank','BR003','ICIC0009876','Banglore',2000,103),
+    -> ('AXIS Bank','BR004','AXIS0005432','Chennai',1998,104),
+    -> ('Bank of Baroda','BR005','BARB000689','Not Provided',1930,105);
+
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | Chennai      |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1930 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+
+				1. WHERE Clause
+
+1. Retrieve all banks located in Maharashtra.
+  mysql> select bankname from bank where location='MH';
+  Empty set (0.05 sec)  
+
+
+2. Select banks established after the year 1990.
+	mysql> select * from bank where founded > 1990;
++---------+------------+------------+-------------+----------+---------+--------+
+| bank_id | bankname   | branchcode | ifsc        | location | founded | cityid |
++---------+------------+------------+-------------+----------+---------+--------+
+|       2 | HDFC Bank  | BR002      | HDFC0005678 | Pune     |    1994 |    102 |
+|       3 | ICICI Bank | BR003      | ICIC0009876 | Banglore |    2000 |    103 |
+|       4 | AXIS Bank  | BR004      | AXIS0005432 | Chennai  |    1998 |    104 |
++---------+------------+------------+-------------+----------+---------+--------+
+3 rows in set (0.00 sec)
+
+3. Fetch details of banks whose EstablishedYear is between 1950 and 2000.
+
+	mysql> select * from bank where founded between 1950 and 2000;
++---------+------------+------------+-------------+----------+---------+--------+
+| bank_id | bankname   | branchcode | ifsc        | location | founded | cityid |
++---------+------------+------------+-------------+----------+---------+--------+
+|       1 | SBI Bank   | BR001      | SBIN0001234 | Mumbai   |    1955 |    101 |
+|       2 | HDFC Bank  | BR002      | HDFC0005678 | Pune     |    1994 |    102 |
+|       3 | ICICI Bank | BR003      | ICIC0009876 | Banglore |    2000 |    103 |
+|       4 | AXIS Bank  | BR004      | AXIS0005432 | Chennai  |    1998 |    104 |
++---------+------------+------------+-------------+----------+---------+--------+
+4 rows in set (0.04 sec)
+
+
+4. Retrieve all banks where the Location is not 'Mumbai'.
+
+mysql> select * from bank where location != 'Mumbai';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+4 rows in set (0.01 sec)
+
+
+5. Select banks with BranchCode starting with 'BR00'.
+
+mysql> select * from bank where branchcode like 'BR00%';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+6. Fetch details of banks with EstablishedYear less than 2000 and located in 'Pune'.
+
+mysql> select * from bank where founded < 2000 and location = 'Pune';
++---------+-----------+------------+-------------+----------+---------+--------+
+| bank_id | bankname  | branchcode | ifsc        | location | founded | cityid |
++---------+-----------+------------+-------------+----------+---------+--------+
+|       2 | HDFC Bank | BR002      | HDFC0005678 | Pune     |    1994 |    102 |
++---------+-----------+------------+-------------+----------+---------+--------+
+1 row in set (0.00 sec)
+
+
+
+7. Find banks where the IFSC_Code contains '000'.
+
+mysql> select * from bank where ifsc like '%000%';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+8. Retrieve banks with BankName containing the word 'Bank'.
+
+mysql> select bankname from bank where bankname like '%Bank%';
++----------------+
+| bankname       |
++----------------+
+| AXIS Bank      |
+| Bank of Baroda |
+| HDFC Bank      |
+| ICICI Bank     |
+| SBI Bank       |
++----------------+
+5 rows in set (0.00 sec)
+
+
+
+
+				2.  UPDATE Statement
+
+1. Update the Location to 'New Delhi' for the bank with BankName = 'Axis Bank'.
+
+mysql> update bank set location = 'New Delhi' where bankname = 'Axis Bank';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1930 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+
+2. Increase the EstablishedYear by 1 for all banks established before 1950.
+
+mysql> update bank set location = 'New Delhi' where bankname = 'Axis Bank';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1930 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+3. Set the Location to 'Not Provided' for all banks where it is currently NULL.
+
+mysql> update bank set founded = founded+1 where founded < 1950;
+Query OK, 1 row affected (0.04 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR001      | SBIN0001234 | Mumbai       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+4. Update the Location to 'Bangalore' for banks established in 1998.
+
+mysql> update bank set location = 'Banglore' where founded =1998;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank where founded = 1998;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | Banglore     |    1998 |    104 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+5. Change the BranchCode to 'BR999' for the bank with BankName = 'SBI Bank'.
+
+mysql> update bank set branchcode = 'BR999' where bankname = 'SBI Bank';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank where branchcode='BR999';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR999      | SBIN0001234 | Mumbai       |    1955 |    101 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+1 rows in set (0.00 sec)
+
+6. Update the EstablishedYear to 2005 for banks with BankID greater than 3.
+
+mysql> update bank set founded = 2005 where bank_id >3;
+Query OK, 2 rows affected (0.00 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | Banglore     |    2005 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    2005 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+2 rows in set (0.00 sec)
+
+7. Set all Location fields to uppercase.
+
+mysql> update bank set location = upper(location) ;
+Query OK, 5 rows affected (0.01 sec)
+Rows matched: 5  Changed: 5  Warnings: 0
+
+
+mysql> select * from bank;
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       1 | SBI Bank       | BR999      | SBIN0001234 | MUMBAI       |    1955 |    101 |
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | PUNE         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | BANGLORE     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | BANGLORE     |    2005 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | NOT PROVIDED |    2005 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+
+
+8. Add 'Updated-' as a prefix to all BankName values.
+
+UPDATE Bank SET BankName = CONCAT('Updated-', BankName);
+
+mysql> select * from bank;
++---------+------------------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname               | branchcode | ifsc        | location     | founded | cityid |
++---------+------------------------+------------+-------------+--------------+---------+--------+
+|       1 | Updated SBI Bank       | BR999      | SBIN0001234 | MUMBAI       |    1955 |    101 |
+|       2 | Updated HDFC Bank      | BR002      | HDFC0005678 | PUNE         |    1994 |    102 |
+|       3 | Updated ICICI Bank     | BR003      | ICIC0009876 | BANGLORE     |    2000 |    103 |
+|       4 | Updated AXIS Bank      | BR004      | AXIS0005432 | BANGLORE     |    2005 |    104 |
+|       5 | Updated Bank of Baroda | BR005      | BARB0006789 | NOT PROVIDED |    2005 |    105 |
++---------+------------------------+------------+-------------+--------------+---------+--------+
+5 rows in set (0.00 sec)
+
+9. Remove updated from bankname.
+   Use trim function 
+
+mysql> update bank set bankname = Right(bankname,8);
+Query OK, 5 rows affected (0.04 sec)
+Rows matched: 5  Changed: 5  Warnings: 0
+
+
+
+
+
+
+
+			3. DELETE Statement:
+1. Delete the bank record where the BankID is 5.
+
+      Delete from bank where bank_id =5;
+
+
+2. Remove all banks established before 1940.
+     
+      Delete from bank where founded <1940;
+
+3. Delete all banks with a NULL value in the Location column.
+        
+      Delete from bank where location is null;
+
+
+			4. ALIAS:
+
+
+
+1. Display BankName as Bank_Name and Location as City.
+
+mysql> Select bankname as Bank_Name, location as City from bank;
++----------------+--------------+
+| Bank_Name      | City         |
++----------------+--------------+
+| SBI Bank       | Mumbai       |
+| HDFC Bank      | Pune         |
+| ICICI Bank     | Banglore     |
+| AXIS Bank      | New Delhi    |
+| Bank of Baroda | Not Provided |
++----------------+--------------+
+5 rows in set (0.00 sec)
+
+
+
+2. Fetch BankID and alias it as ID and display EstablishedYear as Year.
+
+
+
+mysql> select bank_id as ID,founded as Year from bank;
++----+------+
+| ID | Year |
++----+------+
+|  1 | 1955 |
+|  2 | 1994 |
+|  3 | 2000 |
+|  4 | 1998 |
+|  5 | 1931 |
++----+------+
+5 rows in set (0.00 sec)
+
+
+
+3. Create a query to display the IFSC_Code column as Bank_IFSC.
+
+mysql> select ifsc as Bank_IFSC from bank;
++-------------+
+| Bank_IFSC   |
++-------------+
+| AXIS0005432 |
+| BARB0006789 |
+| HDFC0005678 |
+| ICIC0009876 |
+| SBIN0001234 |
++-------------+
+5 rows in set (0.00 sec)
