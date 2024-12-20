@@ -431,3 +431,518 @@ mysql> select ifsc as Bank_IFSC from bank;
 | SBIN0001234 |
 +-------------+
 5 rows in set (0.00 sec)
+
+
+
+
+                        5. String Functions
+
+1. Retrieve the UPPERCASE version of all BankName.
+
+mysql> select upper(bankname) as UPPERCASE from bank;
++----------------+
+| UPPERCASE      |
++----------------+
+| AXIS BANK      |
+| BANK OF BARODA |
+| HDFC BANK      |
+| ICICI BANK     |
+| SBI BANK       |
++----------------+
+5 rows in set (0.00 sec)
+
+
+2. Display the first 3 characters of each BranchCode.
+
+mysql> select substring(branchcode,1,3) from bank;
++---------------------------+
+| substring(branchcode,1,3) |
++---------------------------+
+| BR0                       |
+| BR0                       |
+| BR0                       |
+| BR0                       |
+| BR0                       |
++---------------------------+
+5 rows in set (0.04 sec)
+
+
+
+3. Find the length of each BankName.
+
+mysql> select left(branchcode,3) from bank;
++--------------------+
+| left(branchcode,3) |
++--------------------+
+| BR0                |
+| BR0                |
+| BR0                |
+| BR0                |
+| BR0                |
++--------------------+
+5 rows in set (0.04 sec)
+
+mysql> select bankname, length(bankname) from bank;
++----------------+------------------+
+| bankname       | length(bankname) |
++----------------+------------------+
+| AXIS Bank      |                9 |
+| Bank of Baroda |               14 |
+| HDFC Bank      |                9 |
+| ICICI Bank     |               10 |
+| SBI Bank       |                8 |
++----------------+------------------+
+5 rows in set (0.00 sec)
+
+
+
+4. Use UPPER() to display all BankName values in uppercase.
+
+mysql> select upper(bankname) from bank;
++-----------------+
+| upper(bankname) |
++-----------------+
+| AXIS BANK       |
+| BANK OF BARODA  |
+| HDFC BANK       |
+| ICICI BANK      |
+| SBI BANK        |
++-----------------+
+5 rows in set (0.00 sec)
+
+5. Retrieve BankName in lowercase using LOWER().
+
+mysql> select lower(bankname) from bank;
++-----------------+
+| lower(bankname) |
++-----------------+
+| axis bank       |
+| bank of baroda  |
+| hdfc bank       |
+| icici bank      |
+| sbi bank        |
++-----------------+
+5 rows in set (0.00 sec)
+
+6. Find the position of 'Bank' in each BankName using LOCATE().
+
+mysql> select locate('Bank', bankname), bankname from bank;
++--------------------------+----------------+
+| locate('Bank', bankname) | bankname       |
++--------------------------+----------------+
+|                        6 | AXIS Bank      |
+|                        1 | Bank of Baroda |
+|                        6 | HDFC Bank      |
+|                        7 | ICICI Bank     |
+|                        5 | SBI Bank       |
++--------------------------+----------------+
+5 rows in set (0.00 sec)
+
+
+7. Replace 'Bank' with 'Branch' in all BankName values using REPLACE().
+
+UPDATE Bank 
+SET BankName = REPLACE(BankName, 'Bank', 'Branch');
+
+
+8. Use SUBSTRING() to extract the first 5 characters of each IFSC_Code.
+
+mysql> select substring(ifsc,1,5) from bank;
++---------------------+
+| substring(ifsc,1,5) |
++---------------------+
+| AXIS0               |
+| BARB0               |
+| HDFC0               |
+| ICIC0               |
+| SBIN0               |
++---------------------+
+5 rows in set (0.00 sec)
+
+
+9. Trim white spaces from Location using TRIM().
+
+mysql> select trim(location) from bank;
++----------------+
+| trim(location) |
++----------------+
+| MUMBAI         |
+| PUNE           |
+| BANGLORE       |
+| BANGLORE       |
+| NOT PROVIDED   |
++----------------+
+5 rows in set (0.00 sec)
+
+10. Concatenate BankName and Location using CONCAT() with a hyphen (-) in between.
+
+mysql> select concat(bankname,'-',location) from bank;
++-------------------------------+
+| concat(bankname,'-',location) |
++-------------------------------+
+| SBI Bank-MUMBAI               |
+| HDFC Bank-PUNE                |
+| ICICI Bank-BANGLORE           |
+| AXIS Bank-BANGLORE            |
+| Bank of Baroda-NOT PROVIDED   |
++-------------------------------+
+5 rows in set (0.00 sec)
+
+mysql> select concat_ws('-',bankname,location) from bank;
++----------------------------------+
+| concat_ws('-',bankname,location) |
++----------------------------------+
+| SBI Bank-MUMBAI                  |
+| HDFC Bank-PUNE                   |
+| ICICI Bank-BANGLORE              |
+| AXIS Bank-BANGLORE               |
+| Bank of Baroda-NOT PROVIDED      |
++----------------------------------+
+5 rows in set (0.04 sec)
+
+
+
+
+11. Pad BranchCode with zeros to make it 8 characters long using LPAD().
+
+12. Reverse the IFSC_Code for all banks using REVERSE().
+
+mysql> select reverse(ifsc) from bank;
++---------------+
+| reverse(ifsc) |
++---------------+
+| 2345000SIXA   |
+| 9876000BRAB   |
+| 8765000CFDH   |
+| 6789000CICI   |
+| 4321000NIBS   |
++---------------+
+5 rows in set (0.04 sec)
+
+
+
+13. Display BankName with only the first letter capitalized 
+    using CONCAT(UCASE(LEFT(BankName, 1)), LCASE(SUBSTRING(BankName, 2))).
+
+
+
+
+
+
+                    6. DISTINCT Keyword
+
+
+
+1. Display all unique Locations from the Bank table.
+
+mysql> select distinct location from bank;
++--------------+
+| location     |
++--------------+
+| Mumbai       |
+| Pune         |
+| Banglore     |
+| New Delhi    |
+| Not Provided |
++--------------+
+5 rows in set (0.04 sec)
+
+
+
+2. Fetch unique years from the EstablishedYear column.
+
+mysql> select distinct founded from bank;
++---------+
+| founded |
++---------+
+|    1955 |
+|    1994 |
+|    2000 |
+|    1998 |
+|    1931 |
++---------+
+5 rows in set (0.00 sec)
+
+
+3. Show all distinct CityID values linked to the banks.
+
+mysql> select distinct CityID from bank;
++--------+
+| CityID |
++--------+
+|    101 |
+|    102 |
+|    103 |
+|    104 |
+|    105 |
++--------+
+5 rows in set (0.04 sec)
+
+
+
+                   7. LIKE and NOT LIKE Keywords
+
+
+1. Retrieve banks where the BankName starts with 'S'.
+
+mysql> select bankname from bank where bankname like 'S%';
++----------+
+| bankname |
++----------+
+| SBI Bank |
++----------+
+1 row in set (0.00 sec)
+
+
+2. Fetch banks where the IFSC_Code ends with '789'.
+
+mysql> select * from bank where ifsc like '%789%';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+1 row in set (0.00 sec)
+
+
+3. Display banks whose Location does not contain the word 'Mumbai'.
+
+mysql> select * from bank where location not like '%Mumbai%';
++---------+----------------+------------+-------------+--------------+---------+--------+
+| bank_id | bankname       | branchcode | ifsc        | location     | founded | cityid |
++---------+----------------+------------+-------------+--------------+---------+--------+
+|       2 | HDFC Bank      | BR002      | HDFC0005678 | Pune         |    1994 |    102 |
+|       3 | ICICI Bank     | BR003      | ICIC0009876 | Banglore     |    2000 |    103 |
+|       4 | AXIS Bank      | BR004      | AXIS0005432 | New Delhi    |    1998 |    104 |
+|       5 | Bank of Baroda | BR005      | BARB0006789 | Not Provided |    1931 |    105 |
++---------+----------------+------------+-------------+--------------+---------+--------+
+4 rows in set (0.00 sec)
+
+
+                            8. LIMIT
+
+
+1. Fetch the first 3 records from the Bank table.
+
+mysql> select * from bank limit 3;
++---------+------------+------------+-------------+----------+---------+--------+
+| bank_id | bankname   | branchcode | ifsc        | location | founded | cityid |
++---------+------------+------------+-------------+----------+---------+--------+
+|       1 | SBI Bank   | BR001      | SBIN0001234 | Mumbai   |    1955 |    101 |
+|       2 | HDFC Bank  | BR002      | HDFC0005678 | Pune     |    1994 |    102 |
+|       3 | ICICI Bank | BR003      | ICIC0009876 | Banglore |    2000 |    103 |
++---------+------------+------------+-------------+----------+---------+--------+
+3 rows in set (0.04 sec)
+
+
+2. Retrieve 2 records starting from the 2nd row (offset).
+
+mysql> select * from bank limit 2 offset 1;
++---------+------------+------------+-------------+----------+---------+--------+
+| bank_id | bankname   | branchcode | ifsc        | location | founded | cityid |
++---------+------------+------------+-------------+----------+---------+--------+
+|       2 | HDFC Bank  | BR002      | HDFC0005678 | Pune     |    1994 |    102 |
+|       3 | ICICI Bank | BR003      | ICIC0009876 | Banglore |    2000 |    103 |
++---------+------------+------------+-------------+----------+---------+--------+
+2 rows in set (0.00 sec)
+
+
+3. Display only the top bank (single record) based on BankID.
+
+mysql> select * from bank order by bank_id limit 1;
++---------+----------+------------+-------------+----------+---------+--------+
+| bank_id | bankname | branchcode | ifsc        | location | founded | cityid |
++---------+----------+------------+-------------+----------+---------+--------+
+|       1 | SBI Bank | BR001      | SBIN0001234 | Mumbai   |    1955 |    101 |
++---------+----------+------------+-------------+----------+---------+--------+
+1 row in set (0.00 sec)
+
+
+                    9. Aggregate Functions
+
+1. Count the total number of banks in the Bank table.
+
+mysql> select count(bank_id) from bank;
++----------------+
+| count(bank_id) |
++----------------+
+|              5 |
++----------------+
+1 row in set (0.04 sec)
+
+
+2. Find the earliest year a bank was established.
+
+mysql> select min(founded) from bank;
++--------------+
+| min(founded) |
++--------------+
+|         1931 |
++--------------+
+1 row in set (0.04 sec)
+
+
+3. mysql> select  count(distinct location) from bank ;
++--------------------------+
+| count(distinct location) |
++--------------------------+
+|                        5 |
++--------------------------+
+1 row in set (0.04 sec)
+
+
+4. Count the total number of banks in the Bank table.
+
+mysql> select count(*) from bank;
++----------+
+| count(*) |
++----------+
+|        5 |
++----------+
+1 row in set (0.00 sec)
+
+
+5. Find the earliest and latest EstablishedYear using MIN() and MAX().
+
+mysql> select max(founded) from bank;
++--------------+
+| max(founded) |
++--------------+
+|         2005 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select MIN(founded) from bank;
++--------------+
+| MIN(founded) |
++--------------+
+|         1955 |
++--------------+
+1 row in set (0.00 sec)
+
+6. Calculate the average EstablishedYear for all banks.
+
+
+mysql> select avg(founded) from bank;
++--------------+
+| avg(founded) |
++--------------+
+|    1991.8000 |
++--------------+
+1 row in set (0.04 sec)
+
+
+
+7. Find the sum of all CityID values linked to banks.
+
+mysql> select sum(cityID) from bank;
++-------------+
+| sum(cityID) |
++-------------+
+|         515 |
++-------------+
+1 row in set (0.00 sec)
+
+
+
+8. Count the total number of unique Locations.
+
+
+mysql> select distinct count(location) from bank;
++-----------------+
+| count(location) |
++-----------------+
+|               5 |
++-----------------+
+1 row in set (0.04 sec)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        10.  GROUP BY Clause
+
+1. Group banks by Location and count the number of banks in each location.
+
+mysql> select location, count(*) from bank group by location;
++--------------+----------+
+| location     | count(*) |
++--------------+----------+
+| MUMBAI       |        1 |
+| PUNE         |        1 |
+| BANGLORE     |        2 |
+| NOT PROVIDED |        1 |
++--------------+----------+
+4 rows in set (0.00 sec)
+
+
+
+2. Group banks by CityID and calculate the average EstablishedYear for each group.
+
+mysql> select cityid, avg(founded) from bank group by cityid;
++--------+--------------+
+| cityid | avg(founded) |
++--------+--------------+
+|    101 |    1955.0000 |
+|    102 |    1994.0000 |
+|    103 |    2000.0000 |
+|    104 |    2005.0000 |
+|    105 |    2005.0000 |
++--------+--------------+
+5 rows in set (0.00 sec)
+
+
+
+3. Display the total number of banks for each EstablishedYear.
+
+mysql> select founded, count(*) from bank group by founded;
++---------+----------+
+| founded | count(*) |
++---------+----------+
+|    1955 |        1 |
+|    1994 |        1 |
+|    2000 |        1 |
+|    2005 |        2 |
++---------+----------+
+4 rows in set (0.00 sec)
+
+
+
+4. Retrieve the maximum EstablishedYear for each CityID.
+
+mysql> select  max(founded) from bank group by cityid;
++--------------+
+| max(founded) |
++--------------+
+|         1955 |
+|         1994 |
+|         2000 |
+|         2005 |
+|         2005 |
++--------------+
+5 rows in set (0.00 sec)
+
+
+
+
+5. Count the number of distinct BranchCode for each Location.
+
+mysql> select location,count(distinct branchcode) from bank group by location;
++--------------+----------------------------+
+| location     | count(distinct branchcode) |
++--------------+----------------------------+
+| BANGLORE     |                          2 |
+| MUMBAI       |                          1 |
+| NOT PROVIDED |                          1 |
+| PUNE         |                          1 |
++--------------+----------------------------+
+4 rows in set (0.04 sec)
